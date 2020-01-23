@@ -26,6 +26,10 @@ func Run(mods ...module.Module) {
 
 	log.Release("Leaf %v starting up", version)
 
+	// close signal
+	closeSig := make(chan os.Signal, 1)
+	signal.Notify(closeSig, os.Interrupt, os.Kill)
+
 	// module
 	for i := 0; i < len(mods); i++ {
 		module.Register(mods[i])
@@ -36,12 +40,10 @@ func Run(mods ...module.Module) {
 	cluster.Init()
 
 	// console
-	console.Init()
+	console.Init(closeSig)
 
 	// close
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, os.Kill)
-	sig := <-c
+	sig := <-closeSig
 	log.Release("Leaf closing down (signal: %v)", sig)
 	console.Destroy()
 	cluster.Destroy()

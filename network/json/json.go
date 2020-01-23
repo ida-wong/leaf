@@ -28,13 +28,13 @@ type MsgRaw struct {
 }
 
 func NewProcessor() *Processor {
-	p := new(Processor)
-	p.msgInfo = make(map[string]*MsgInfo)
-	return p
+	processor := new(Processor)
+	processor.msgInfo = make(map[string]*MsgInfo)
+	return processor
 }
 
 // It's dangerous to call the method on routing or marshaling (unmarshaling)
-func (p *Processor) Register(msg interface{}) string {
+func (processor *Processor) Register(msg interface{}) string {
 	msgType := reflect.TypeOf(msg)
 	if msgType == nil || msgType.Kind() != reflect.Ptr {
 		log.Fatal("json message pointer required")
@@ -43,24 +43,24 @@ func (p *Processor) Register(msg interface{}) string {
 	if msgID == "" {
 		log.Fatal("unnamed json message")
 	}
-	if _, ok := p.msgInfo[msgID]; ok {
+	if _, ok := processor.msgInfo[msgID]; ok {
 		log.Fatal("message %v is already registered", msgID)
 	}
 
 	i := new(MsgInfo)
 	i.msgType = msgType
-	p.msgInfo[msgID] = i
+	processor.msgInfo[msgID] = i
 	return msgID
 }
 
 // It's dangerous to call the method on routing or marshaling (unmarshaling)
-func (p *Processor) SetRouter(msg interface{}, msgRouter *chanrpc.Server) {
+func (processor *Processor) SetRouter(msg interface{}, msgRouter *chanrpc.Server) {
 	msgType := reflect.TypeOf(msg)
 	if msgType == nil || msgType.Kind() != reflect.Ptr {
 		log.Fatal("json message pointer required")
 	}
 	msgID := msgType.Elem().Name()
-	i, ok := p.msgInfo[msgID]
+	i, ok := processor.msgInfo[msgID]
 	if !ok {
 		log.Fatal("message %v not registered", msgID)
 	}
@@ -69,13 +69,13 @@ func (p *Processor) SetRouter(msg interface{}, msgRouter *chanrpc.Server) {
 }
 
 // It's dangerous to call the method on routing or marshaling (unmarshaling)
-func (p *Processor) SetHandler(msg interface{}, msgHandler MsgHandler) {
+func (processor *Processor) SetHandler(msg interface{}, msgHandler MsgHandler) {
 	msgType := reflect.TypeOf(msg)
 	if msgType == nil || msgType.Kind() != reflect.Ptr {
 		log.Fatal("json message pointer required")
 	}
 	msgID := msgType.Elem().Name()
-	i, ok := p.msgInfo[msgID]
+	i, ok := processor.msgInfo[msgID]
 	if !ok {
 		log.Fatal("message %v not registered", msgID)
 	}
@@ -84,8 +84,8 @@ func (p *Processor) SetHandler(msg interface{}, msgHandler MsgHandler) {
 }
 
 // It's dangerous to call the method on routing or marshaling (unmarshaling)
-func (p *Processor) SetRawHandler(msgID string, msgRawHandler MsgHandler) {
-	i, ok := p.msgInfo[msgID]
+func (processor *Processor) SetRawHandler(msgID string, msgRawHandler MsgHandler) {
+	i, ok := processor.msgInfo[msgID]
 	if !ok {
 		log.Fatal("message %v not registered", msgID)
 	}
@@ -94,10 +94,10 @@ func (p *Processor) SetRawHandler(msgID string, msgRawHandler MsgHandler) {
 }
 
 // goroutine safe
-func (p *Processor) Route(msg interface{}, userData interface{}) error {
+func (processor *Processor) Route(msg interface{}, userData interface{}) error {
 	// raw
 	if msgRaw, ok := msg.(MsgRaw); ok {
-		i, ok := p.msgInfo[msgRaw.msgID]
+		i, ok := processor.msgInfo[msgRaw.msgID]
 		if !ok {
 			return fmt.Errorf("message %v not registered", msgRaw.msgID)
 		}
@@ -113,7 +113,7 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 		return errors.New("json message pointer required")
 	}
 	msgID := msgType.Elem().Name()
-	i, ok := p.msgInfo[msgID]
+	i, ok := processor.msgInfo[msgID]
 	if !ok {
 		return fmt.Errorf("message %v not registered", msgID)
 	}
@@ -127,7 +127,7 @@ func (p *Processor) Route(msg interface{}, userData interface{}) error {
 }
 
 // goroutine safe
-func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
+func (processor *Processor) Unmarshal(data []byte) (interface{}, error) {
 	var m map[string]json.RawMessage
 	err := json.Unmarshal(data, &m)
 	if err != nil {
@@ -138,7 +138,7 @@ func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 	}
 
 	for msgID, data := range m {
-		i, ok := p.msgInfo[msgID]
+		i, ok := processor.msgInfo[msgID]
 		if !ok {
 			return nil, fmt.Errorf("message %v not registered", msgID)
 		}
@@ -156,15 +156,15 @@ func (p *Processor) Unmarshal(data []byte) (interface{}, error) {
 }
 
 // goroutine safe
-func (p *Processor) Marshal(msg interface{}) ([][]byte, error) {
+func (processor *Processor) Marshal(msg interface{}) ([][]byte, error) {
 	msgType := reflect.TypeOf(msg)
 	if msgType == nil || msgType.Kind() != reflect.Ptr {
 		return nil, errors.New("json message pointer required")
 	}
 	msgID := msgType.Elem().Name()
-	if _, ok := p.msgInfo[msgID]; !ok {
-		return nil, fmt.Errorf("message %v not registered", msgID)
-	}
+	//if _, ok := processor.msgInfo[msgID]; !ok {
+	//	return nil, fmt.Errorf("message %v not registered", msgID)
+	//}
 
 	// data
 	m := map[string]interface{}{msgID: msg}

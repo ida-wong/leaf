@@ -2,18 +2,19 @@ package console
 
 import (
 	"fmt"
-	"github.com/ida-wong/leaf/log"
 	"math"
-
+	"os"
+	
 	. "github.com/ida-wong/leaf/command"
 	"github.com/ida-wong/leaf/config"
 	. "github.com/ida-wong/leaf/internal"
+	"github.com/ida-wong/leaf/log"
 	"github.com/ida-wong/leaf/network"
 )
 
 var server *network.TCPServer
 
-func Init() {
+func Init(closeSignal chan<- os.Signal) {
 	consolePort := config.ConsolePort
 	if consolePort == 0 {
 		return
@@ -29,7 +30,10 @@ func Init() {
 
 	server.Start()
 
+	closeCommand := new(CloseCommand)
+	closeCommand.CloseSignal = closeSignal
 	commands := []Command{
+		closeCommand,
 		new(CpuProfCommand),
 		new(ExternalCommand),
 		new(HelpCommand),
