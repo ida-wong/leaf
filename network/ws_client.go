@@ -1,8 +1,8 @@
 package network
 
 import (
-	"github.com/gorilla/websocket"
-	"github.com/name5566/leaf/log"
+	"github.com/ida-wong/leaf/third/websocket"
+	"github.com/ida-wong/leaf/log"
 	"sync"
 	"time"
 )

@@ -1,17 +1,18 @@
 package module
 
 import (
-	"github.com/name5566/leaf/chanrpc"
-	"github.com/name5566/leaf/console"
-	"github.com/name5566/leaf/go"
-	"github.com/name5566/leaf/timer"
 	"time"
+
+	"github.com/ida-wong/leaf/chanrpc"
+	"github.com/ida-wong/leaf/command"
+	"github.com/ida-wong/leaf/go"
+	"github.com/ida-wong/leaf/timer"
 )
 
 type Skeleton struct {
 	GoLen              int
 	TimerDispatcherLen int
-	AsynCallLen        int
+	AsyncCallLen       int
 	ChanRPCServer      *chanrpc.Server
 	g                  *g.Go
 	dispatcher         *timer.Dispatcher
@@ -27,13 +28,13 @@ func (s *Skeleton) Init() {
 	if s.TimerDispatcherLen <= 0 {
 		s.TimerDispatcherLen = 0
 	}
-	if s.AsynCallLen <= 0 {
-		s.AsynCallLen = 0
+	if s.AsyncCallLen <= 0 {
+		s.AsyncCallLen = 0
 	}
 
 	s.g = g.New(s.GoLen)
 	s.dispatcher = timer.NewDispatcher(s.TimerDispatcherLen)
-	s.client = chanrpc.NewClient(s.AsynCallLen)
+	s.client = chanrpc.NewClient(s.AsyncCallLen)
 	s.server = s.ChanRPCServer
 
 	if s.server == nil {
@@ -100,8 +101,8 @@ func (s *Skeleton) NewLinearContext() *g.LinearContext {
 }
 
 func (s *Skeleton) AsynCall(server *chanrpc.Server, id interface{}, args ...interface{}) {
-	if s.AsynCallLen == 0 {
-		panic("invalid AsynCallLen")
+	if s.AsyncCallLen == 0 {
+		panic("invalid AsyncCallLen")
 	}
 
 	s.client.Attach(server)
@@ -117,5 +118,5 @@ func (s *Skeleton) RegisterChanRPC(id interface{}, f interface{}) {
 }
 
 func (s *Skeleton) RegisterCommand(name string, help string, f interface{}) {
-	console.Register(name, help, f, s.commandServer)
+	command.Register(name, help, f, s.commandServer)
 }

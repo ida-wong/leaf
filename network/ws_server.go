@@ -2,8 +2,8 @@ package network
 
 import (
 	"crypto/tls"
-	"github.com/gorilla/websocket"
-	"github.com/name5566/leaf/log"
+	"github.com/ida-wong/leaf/third/websocket"
+	"github.com/ida-wong/leaf/log"
 	"net"
 	"net/http"
 	"sync"

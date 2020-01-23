@@ -1,4 +1,4 @@
-package conf
+package config
 
 var (
 	LenStackBuf = 4096

@@ -1,22 +1,25 @@
 package leaf
 
+// reference: https://github.com/name5566/leaf
 import (
-	"github.com/name5566/leaf/cluster"
-	"github.com/name5566/leaf/conf"
-	"github.com/name5566/leaf/console"
-	"github.com/name5566/leaf/log"
-	"github.com/name5566/leaf/module"
 	"os"
 	"os/signal"
+
+	"github.com/ida-wong/leaf/cluster"
+	"github.com/ida-wong/leaf/config"
+	"github.com/ida-wong/leaf/console"
+	"github.com/ida-wong/leaf/log"
+	"github.com/ida-wong/leaf/module"
 )
 
 func Run(mods ...module.Module) {
 	// logger
-	if conf.LogLevel != "" {
-		logger, err := log.New(conf.LogLevel, conf.LogPath, conf.LogFlag)
+	if config.LogLevel != "" {
+		logger, err := log.New(config.LogLevel, config.LogPath, config.LogFlag)
 		if err != nil {
 			panic(err)
 		}
+
 		log.Export(logger)
 		defer logger.Close()
 	}

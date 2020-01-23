@@ -1,8 +1,8 @@
 package cluster
 
 import (
-	"github.com/name5566/leaf/conf"
-	"github.com/name5566/leaf/network"
+	"github.com/ida-wong/leaf/config"
+	"github.com/ida-wong/leaf/network"
 	"math"
 	"time"
 )
@@ -13,11 +13,11 @@ var (
 )
 
 func Init() {
-	if conf.ListenAddr != "" {
+	if config.ListenAddr != "" {
 		server = new(network.TCPServer)
-		server.Addr = conf.ListenAddr
+		server.Addr = config.ListenAddr
 		server.MaxConnNum = int(math.MaxInt32)
-		server.PendingWriteNum = conf.PendingWriteNum
+		server.PendingWriteNum = config.PendingWriteNum
 		server.LenMsgLen = 4
 		server.MaxMsgLen = math.MaxUint32
 		server.NewAgent = newAgent
@@ -25,12 +25,12 @@ func Init() {
 		server.Start()
 	}
 
-	for _, addr := range conf.ConnAddrs {
+	for _, addr := range config.ConnAddrs {
 		client := new(network.TCPClient)
 		client.Addr = addr
 		client.ConnNum = 1
 		client.ConnectInterval = 3 * time.Second
-		client.PendingWriteNum = conf.PendingWriteNum
+		client.PendingWriteNum = config.PendingWriteNum
 		client.LenMsgLen = 4
 		client.MaxMsgLen = math.MaxUint32
 		client.NewAgent = newAgent
